@@ -7,13 +7,14 @@ d3.json(earthquakeJSON).then((data) => {
     // Get the features field, which contains the earthquake data
     let quakeData = data.features;
 
-    let colorVars = quakeData.map((feat) => feat.geometry.coordinates[2]);
+    const colorVars = quakeData.map((feat) => feat.geometry.coordinates[2]);
     console.log(colorVars);
     console.log(Math.min(...colorVars));
     console.log(Math.max(...colorVars));
-    console.log([Math.floor(Math.min(...colorVars)), Math.ceil(Math.max(...colorVars))]);
+    const domain = [Math.floor(Math.min(...colorVars)), Math.ceil(Math.max(...colorVars))];
+    console.log(domain);
     //d3.schemeRdYlGn[6]
-    const colour = d3.scaleLinear([Math.floor(Math.min(...colorVars)), Math.ceil(Math.max(...colorVars))], ["green", "red"]);
+    const colour = d3.scaleLinear(domain, ["green", "red"]);
     console.log(colour);
 
     // Function for creating the circle markers for each feature
@@ -23,13 +24,13 @@ d3.json(earthquakeJSON).then((data) => {
             stroke: true,
             fillOpacity: 1,
             color: "black",
-            fillColor: colour
+            fillColor: colour(feature.geometry.coordinates[2])
         });
     };
 
     // Function for creating popups that display the place and time of each feature
     function onEachFeature(feature, layer) {
-        layer.bindPopup(`<h3>${feature.properties.place}</h3><hr><p>${new Date(feature.properties.time)}</p>`);
+        layer.bindPopup(`<h3>${feature.properties.place}</h3><hr><p>${new Date(feature.properties.time)}\n depth: ${feature.geometry.coordinates[2]}</p>`);
     };
 
     let quakes = L.geoJSON(quakeData, {
