@@ -1,5 +1,5 @@
 // Store the earthquake JSON URL https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson
-// https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson
+// The JSON to be used in Part 2: https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json
 let earthquakeJSON = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson";
 
 // Get the JSON data from that URL
@@ -35,12 +35,12 @@ d3.json(earthquakeJSON).then((data) => {
         onEachFeature: onEachFeature
       });
 
-    // 
+    // Create the default base map layer
     let street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     });
 
-    //
+    // Create the map with the streetmap and earthquakes layers to display on load.
     let myMap = L.map("map", {
         center: [
           37.09, -95.71
@@ -64,5 +64,5 @@ d3.json(earthquakeJSON).then((data) => {
         return div;
     };
 
-    legend.addTo(myMap);
+    legend.addTo(myMap); // Add the legend into the map
 });
