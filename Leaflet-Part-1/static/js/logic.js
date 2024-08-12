@@ -64,14 +64,12 @@ d3.json(earthquakeJSON).then((data) => {
         var div = L.DomUtil.create('div', 'info legend'),
             labels = [];
 
-        // loop through our density intervals and generate a label with a colored square for each interval
-        for (var i = 0; i < colorVarsDiscrete.length; i++) {
+        // loop through the depth intervals and generate a label with a colored square for each interval     
+        colorVarsDiscrete.map((v, i) => {
             div.innerHTML +=
-                '<i style="background:' + color(colorVarsDiscrete[i] + 1) + '"></i> ' +
-                colorVarsDiscrete[i] + (colorVarsDiscrete[i + 1] ? '&ndash;' + colorVarsDiscrete[i + 1] + '<br>' : '+');
-        }
-        
-
+                '<i style="background:' + color(v + 1) + '"></i> ' +
+                v + (colorVarsDiscrete[i + 1] ? '&ndash;' + colorVarsDiscrete[i + 1] + '<br>' : '+');
+        });
 
         return div;
     };
