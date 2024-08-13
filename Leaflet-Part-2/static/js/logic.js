@@ -87,9 +87,9 @@ function buildMap(quakeData, plateData) {
     // Create the map with the streetmap and earthquakes layers to display on load.
     let myMap = L.map("map", {
         center: [
-          35.0, -50.0
+          35.0, -25.0
         ],
-        zoom: 2.4,
+        zoom: 2.2,
         layers: [satellite, quakes]
     });
 

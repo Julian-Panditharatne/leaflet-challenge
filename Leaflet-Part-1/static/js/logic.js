@@ -34,6 +34,8 @@ d3.json(earthquakeJSON).then((data) => {
       });
 
     // Create the default base map layer
+    // The access token used to get the base map tiles from Mapbox
+    let accessToken = 'pk.eyJ1IjoibWFwLTF0LTB1dCIsImEiOiJjbHpyaDI3ZW4wNnpoMmxvbm1ka25xNGVtIn0.v7zheM6QmhTBzaEFLtxLXg';
     let street = L.tileLayer.provider('MapBox', {
         id: 'mapbox/light-v11',
         accessToken: accessToken
@@ -42,9 +44,9 @@ d3.json(earthquakeJSON).then((data) => {
     // Create the map with the streetmap and earthquakes layers to display on load.
     let myMap = L.map("map", {
         center: [
-          37.09, -95.71
-        ],
-        zoom: 5,
+            35.0, -25.0
+          ],
+          zoom: 2.2,
         layers: [street, quakes]
     });
 
