@@ -1,20 +1,18 @@
-// Store the earthquake JSON URL https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson
-// The JSON to be used in Part 2: https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json
-let earthquakeJSON = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson";
+let earthquakeJSON = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"; // The Earthquake JSON URL
 
 // Get the JSON data from that URL
 d3.json(earthquakeJSON).then((data) => {
     // Get the features field, which contains the earthquake data
     let quakeData = data.features;
 
-    const colorSchemeInterpolated = d3.interpolate("lime", "darkred"); // The color range that will be used to indicate the depth of each feature 
+    const colorSchemeInterpolated = d3.interpolateRgbBasis(["lime", "orange", "darkred"]); // The color range that will be used to indicate the depth of each feature 
     const colorVarsDiscrete = [-10, 10, 30, 50, 70, 90]; // The groups into which all the depths of each feature will be aggregated
     const color = d3.scaleSequentialQuantile(colorVarsDiscrete, colorSchemeInterpolated); // The color scale that will be used to assign to each marker its color based on the depth of its associated feature
 
     // Function for creating the circle markers for each feature
     function pointToLayer(feature, latlng) {
         return L.circleMarker(latlng, {
-            radius: feature.properties.mag*5,
+            radius: feature.properties.mag*4,
             stroke: true,
             weight: 1,
             fillOpacity: 1,
@@ -25,7 +23,7 @@ d3.json(earthquakeJSON).then((data) => {
 
     // Function for creating popups that display the place and time of each feature
     function onEachFeature(feature, layer) {
-        layer.bindPopup(`<h3>${feature.properties.place}</h3><hr><p>${new Date(feature.properties.time)}\n\n Magnitude: ${feature.properties.mag} \n Depth: ${feature.geometry.coordinates[2]}</p>`);
+        layer.bindPopup(`<h3>${feature.properties.place}</h3><hr><p>${new Date(feature.properties.time)}\n Magnitude: ${feature.properties.mag} \n Depth: ${feature.geometry.coordinates[2]}km</p>`);
     };
 
     // Create a GeoJSON layer that contains the features array on the quakeData object.
@@ -36,9 +34,10 @@ d3.json(earthquakeJSON).then((data) => {
       });
 
     // Create the default base map layer
-    let street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    });
+    let street = L.tileLayer.provider('MapBox', {
+        id: 'mapbox/light-v11',
+        accessToken: accessToken
+        });
 
     // Create the map with the streetmap and earthquakes layers to display on load.
     let myMap = L.map("map", {
@@ -53,7 +52,7 @@ d3.json(earthquakeJSON).then((data) => {
     var legend = L.control({position: 'bottomright'}); // Specify legend position in map
 
     // Steps for generating the content/info that legend will display;
-    legend.onAdd = (map) => {
+    legend.onAdd = () => {
         var div = L.DomUtil.create('div', 'info legend');
         // loop through the depth intervals and generate a label with a colored square for each interval     
         colorVarsDiscrete.map((v, i) => {
