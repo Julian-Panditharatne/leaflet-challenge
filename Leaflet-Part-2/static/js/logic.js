@@ -6,7 +6,9 @@ let platesJSON = "https://raw.githubusercontent.com/fraxen/tectonicplates/master
 // Get the earthquakeJSON data from its URL
 d3.json(earthquakeJSON).then((dataQuake) => {
     // Get the platesJSON data from its URL, and then get the feature data from the features field
-    let plateData = d3.json(platesJSON).then((dataPlate) => dataPlate.features);
+    let plateData;
+    d3.json(platesJSON).then((dataPlate) => {plateData = dataPlate.features;});
+    console.log(plateData);
 
     // Get the earthquake data from the earthquakeJSON's features field
     let quakeData = dataQuake.features;
@@ -40,8 +42,8 @@ d3.json(earthquakeJSON).then((dataQuake) => {
       });
 
     // Function for creating line markers to display the tectonic plate borders
-    function plateLineToLayer(feature, latlng) {
-        return L.polyline(latlng, {
+    function plateStyle(feature, latlng) {
+        return  L.polyline(latlng, {
             color: "orange"
         });
     };
@@ -49,7 +51,7 @@ d3.json(earthquakeJSON).then((dataQuake) => {
     // Create a GeoJSON layer that contains the features array on the plateData object.
     // Run the previous function for each feature of the array.
     let plates = L.geoJSON(plateData, {
-        pointToLayer: plateLineToLayer
+        pointToLayer: plateStyle
     });
 
       // Create an overlay object to hold earthquake and tectonic overlay.
@@ -57,31 +59,39 @@ d3.json(earthquakeJSON).then((dataQuake) => {
         Earthquakes: quakes,
         'Tectonic Plates': plates
     };
+
     // Create the default base map layer
-    let street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    let accessToken = 'pk.eyJ1IjoibWFwLTF0LTB1dCIsImEiOiJjbHpyaDI3ZW4wNnpoMmxvbm1ka25xNGVtIn0.v7zheM6QmhTBzaEFLtxLXg';
+    let satellite = L.tileLayer.provider('MapBox', {
+        id: 'mapbox/satellite-v9',
+        accessToken: accessToken
     });
 
     // Create the other base map layers
+    
     // URL for outdoors: mapbox://styles/mapbox/outdoors-v12 https://api.mapbox.com/styles/v1/mapbox/outdoors-v12?access_token=pk.eyJ1IjoibWFwLTF0LTB1dCIsImEiOiJjbHpyaDI3ZW4wNnpoMmxvbm1ka25xNGVtIn0.v7zheM6QmhTBzaEFLtxLXg
-    let outdoorTileURL = "https://api.mapbox.com/styles/v1/mapbox/outdoors-v12?access_token=pk.eyJ1IjoibWFwLTF0LTB1dCIsImEiOiJjbHpyaDI3ZW4wNnpoMmxvbm1ka25xNGVtIn0.v7zheM6QmhTBzaEFLtxLXg";
+    let outdoorTileURL = "https://api.mapbox.com/styles/mapbox/outdoors-v12?access_token=pk.eyJ1IjoibWFwLTF0LTB1dCIsImEiOiJjbHpyaDI3ZW4wNnpoMmxvbm1ka25xNGVtIn0.v7zheM6QmhTBzaEFLtxLXg";
 
     // 
-    let outdoors = L.tileLayer(outdoorTileURL, {
-        attribution: "Map data: &copy; <a href='https://www.mapbox.com/'>Mapbox</a>"
+    let outdoors = L.tileLayer.provider('MapBox', {
+        id: 'mapbox/outdoors-v12',
+        accessToken: accessToken
     });
 
     // URL for satellite: mapbox://styles/mapbox/satellite-v9 https://api.mapbox.com/styles/v1/mapbox/satellite-v9?access_token=pk.eyJ1IjoibWFwLTF0LTB1dCIsImEiOiJjbHpyaDI3ZW4wNnpoMmxvbm1ka25xNGVtIn0.v7zheM6QmhTBzaEFLtxLXg
-    let satelliteTileURL = "https://api.mapbox.com/styles/v1/mapbox/satellite-v9?access_token=pk.eyJ1IjoibWFwLTF0LTB1dCIsImEiOiJjbHpyaDI3ZW4wNnpoMmxvbm1ka25xNGVtIn0.v7zheM6QmhTBzaEFLtxLXg";
+    let satelliteTileURL = "https://api.mapbox.com/styles/mapbox/satellite-v9?access_token=pk.eyJ1IjoibWFwLTF0LTB1dCIsImEiOiJjbHpyaDI3ZW4wNnpoMmxvbm1ka25xNGVtIn0.v7zheM6QmhTBzaEFLtxLXg";
 
    // 
-   let satellite = L.tileLayer(satelliteTileURL, {
-    attribution: "Map data: &copy; <a href='https://www.mapbox.com/'>Mapbox</a>"
+   let gray = L.tileLayer.provider('MapBox', {
+    id: 'mapbox/light-v11',
+    accessToken: accessToken
     });
 
     // Create a baseMaps object.
     let baseMaps = {
-        
+        Satellite: satellite,
+        Grayscale: gray,
+        Outdoors: outdoors
     };
 
     // Create the map with the streetmap and earthquakes layers to display on load.
@@ -90,14 +100,22 @@ d3.json(earthquakeJSON).then((dataQuake) => {
           37.09, -95.71
         ],
         zoom: 5,
-        layers: [street, quakes]
+        layers: [satellite, quakes]
     });
+
+    // Create a layer control.
+    // Pass baseMaps and overlayMaps to it.
+    // Add the layer control to myMap.
+    L.control.layers(baseMaps, overlayMaps, {
+        collapsed: false
+    }).addTo(myMap);
+
 
     // Creating legend steps:
     var legend = L.control({position: 'bottomright'}); // Specify legend position in map
 
     // Steps for generating the content/info that legend will display;
-    legend.onAdd = (map) => {
+    legend.onAdd = () => {
         var div = L.DomUtil.create('div', 'info legend');
         // loop through the depth intervals and generate a label with a colored square for each interval     
         colorVarsDiscrete.map((v, i) => {
