@@ -1,4 +1,4 @@
-let earthquakeJSON = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"; // The Earthquake JSON URL
+earthquakeJSON = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"; // The Earthquake JSON URL
 let platesJSON = "https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json"; // The Tectonic plate boundary JSON URL
 
 // Get the earthquakeJSON data from its URL
