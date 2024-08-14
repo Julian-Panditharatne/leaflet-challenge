@@ -9,6 +9,12 @@ html {
   height: 100%;
 }
 
+#map2,
+body,
+html {
+  height: 100%;
+}
+
 .info {
   padding: 6px 8px;
   background: white;
